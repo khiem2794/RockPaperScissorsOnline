@@ -10,7 +10,7 @@ namespace PlayService.Enum
         Default,
         Rock,
         Paper,
-        Scissor
+        Scissors
     }
 
     public enum GameState
@@ -26,5 +26,11 @@ namespace PlayService.Enum
         Draw,
         Win,
         Lose
+    }
+
+    public enum MessageType
+    {
+        UserInfo,
+        GameUpdate
     }
 }

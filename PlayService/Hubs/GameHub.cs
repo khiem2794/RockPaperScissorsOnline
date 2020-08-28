@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace PlayService.Hubs
 {
-    public class GameHub : Hub
+    public class GameHub : Hub<IGameHub>
     {
         private static readonly ConcurrentDictionary<string, User> _users = new ConcurrentDictionary<string, User>();
         private static readonly ConcurrentDictionary<string, Game> _games = new ConcurrentDictionary<string, Game>();
         public override Task OnConnectedAsync()
         {
             var user = new User(Context.ConnectionId,"player " + Context.ConnectionId);
-            _users.TryAdd(user.UserName, user);
-            Clients.Caller.SendAsync("UserInfo", user);
+            _ = _users.TryAdd(user.UserName, user);
+            Clients.Caller.MessageClient(new Message(MessageType.UserInfo, new { User = user }));
             return base.OnConnectedAsync();
         }
         public override Task OnDisconnectedAsync(Exception exception)
@@ -67,7 +67,7 @@ namespace PlayService.Hubs
 
         private async Task UpdateGameToPlayers(Game game)
         {
-            await Clients.Clients(game.Players.Select(player => player.User.ConnectionId).ToList()).SendAsync("UpdateGame", game.UpdateGame());
+            await Clients.Clients(game.Players.Select(player => player.User.ConnectionId).ToList()).MessageClient(new Message(MessageType.GameUpdate, game.UpdateGame()));
         }
     }
 }
