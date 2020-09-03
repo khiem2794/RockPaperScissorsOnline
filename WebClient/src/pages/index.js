@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react"
-import { graphql } from "gatsby"
+import { graphql, navigate } from "gatsby"
 import Layout from "../components/layout"
 import { AppContext, GAME_STATE, HAND } from "../context/context"
 import { checkResult, RESULT } from "../helper/helper"
@@ -72,6 +72,15 @@ export default function Index({ data }) {
     leftGame(state.game.gameId)
   }
 
+  if (!state.auth.isAuthenticated) {
+    navigate("/login")
+    return (
+      <Layout>
+        <div></div>
+      </Layout>
+    )
+  }
+
   if (state.game.gameState === GAME_STATE.NONE) {
     return (
       <Layout>
@@ -141,7 +150,7 @@ export default function Index({ data }) {
                     </Grid>
                   ))
                 : handCollection.map((h, k) => {
-                    if (h.type === state.game.opponent.hand)
+                    if (h.type === state.game.opponent.hand) {
                       return (
                         <Grid item xs={4} key={k}>
                           <HandCard
@@ -151,6 +160,8 @@ export default function Index({ data }) {
                           />
                         </Grid>
                       )
+                    }
+                    return <></>
                   })}
             </Grid>
           </Grid>
@@ -220,7 +231,7 @@ export default function Index({ data }) {
                     </Grid>
                   ))
                 : handCollection.map((h, k) => {
-                    if (h.type === currentHand)
+                    if (h.type === currentHand) {
                       return (
                         <Grid item xs={4} key={k}>
                           <HandCard
@@ -239,6 +250,8 @@ export default function Index({ data }) {
                           />
                         </Grid>
                       )
+                    }
+                    return <></>
                   })}
             </Grid>
           )}

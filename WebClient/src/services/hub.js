@@ -1,6 +1,7 @@
 import * as signalR from "@microsoft/signalr"
 
-const CONNECTION_STATE = {
+export const CONNECTION_STATE = {
+  NONE: -1,
   INITIALIZE: 0,
   CONNECTED: 1,
   DISCONNECTED: 2,
@@ -8,9 +9,15 @@ const CONNECTION_STATE = {
 
 export class ClientHub {
   constructor() {
+    this.ConnectionState = CONNECTION_STATE.NONE
+    this.connectionId = ""
+  }
+  initialize(accessToken) {
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
     this.conn = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:5001/gamehub")
+      .withUrl("https://localhost:5001/gamehub", {
+        accessTokenFactory: () => accessToken,
+      })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build()

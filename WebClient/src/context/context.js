@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useEffect } from "react"
-import { ClientHub } from "../signalr/hub"
+import { ClientHub, CONNECTION_STATE } from "../services/hub"
+import { handleLogin, handleRegister } from "../services/auth"
 
 const MESSAGE_TYPE = {
   USER_INFO: 0,
@@ -10,6 +11,10 @@ const MESSAGE_TYPE = {
 const ACTION_TYPE = {
   USER_INFO: 0,
   GAME_UPDATE: 1,
+  END_GAME: 2,
+
+  REGISTER: 3,
+  LOGIN: 4,
 }
 
 export const GAME_STATE = {
@@ -28,9 +33,9 @@ export const HAND = {
 }
 
 const initialState = {
-  user: {
-    userName: "",
-    connectionId: "",
+  auth: {
+    isAuthenticated: false,
+    userAuth: null,
   },
   game: {
     gameId: "",
@@ -47,12 +52,9 @@ const reducer = (state, action) => {
     case ACTION_TYPE.USER_INFO:
       return {
         ...state,
-        user: {
-          userName: action.payload.data.user.userName,
-          connectionId: action.payload.data.user.connectionId,
-        },
       }
     case ACTION_TYPE.GAME_UPDATE:
+      console.log("action.payload.data", action.payload.data)
       return {
         ...state,
         game: {
@@ -60,25 +62,36 @@ const reducer = (state, action) => {
           round: action.payload.data.round,
           gameState: action.payload.data.state,
           you: action.payload.data.playersState.find(
-            e => e.name === state.user.userName
+            e => e.name === state.auth.userAuth.username
           ),
           opponent:
             action.payload.data.playersState.length > 1
               ? action.payload.data.playersState.find(
-                  e => e.name !== state.user.userName
+                  e => e.name !== state.auth.userAuth.username
                 )
               : null,
         },
       }
     case ACTION_TYPE.END_GAME:
       return { ...state, game: initialState.game }
+
+    case ACTION_TYPE.LOGIN:
+      return {
+        ...state,
+        auth: {
+          isAuthenticated: true,
+          userAuth: action.payload.data,
+        },
+      }
+    case ACTION_TYPE.LOGOUT:
+      return initialState
     default:
   }
 }
 const clientHub = new ClientHub()
+
 export default function AppContextProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
-  console.log("game", state.game)
 
   const messageHandler = msg => {
     const data = msg.data
@@ -104,15 +117,33 @@ export default function AppContextProvider({ children }) {
   }
 
   useEffect(() => {
-    clientHub
-      .start()
-      .then(() => {
-        clientHub.messageHandler = messageHandler
-      })
-      .catch(err => {
-        console.error(err)
-      })
-  }, [])
+    if (
+      clientHub.ConnectionState === CONNECTION_STATE.NONE &&
+      state.auth.isAuthenticated
+    ) {
+      clientHub.initialize(state.auth.userAuth.accessToken)
+    }
+    if (
+      state.auth.isAuthenticated &&
+      clientHub.ConnectionState === CONNECTION_STATE.INITIALIZE
+    ) {
+      if (clientHub === null) clientHub = new ClientHub()
+      clientHub
+        .start()
+        .then(() => {
+          clientHub.messageHandler = messageHandler
+        })
+        .catch(err => {
+          console.error(err)
+        })
+    }
+    if (
+      !state.auth.isAuthenticated &&
+      clientHub.ConnectionState === CONNECTION_STATE.CONNECTED
+    ) {
+      clientHub.stop()
+    }
+  }, [state.auth.isAuthenticated])
 
   const createGame = () => {
     clientHub.invoke("CreateGame")
@@ -135,7 +166,54 @@ export default function AppContextProvider({ children }) {
     })
   }
 
-  const value = { state, createGame, joinGame, playHand, leftGame }
+  const register = (name, email, password) => {
+    return handleRegister(name, email, password)
+      .then(userAuth => {
+        dispatch({
+          type: ACTION_TYPE.LOGIN,
+          payload: {
+            data: userAuth,
+          },
+        })
+      })
+      .catch(err => {
+        throw err
+      })
+  }
+
+  const login = (name, password) => {
+    return handleLogin(name, password)
+      .then(userAuth => {
+        dispatch({
+          type: ACTION_TYPE.LOGIN,
+          payload: {
+            data: userAuth,
+          },
+        })
+      })
+      .catch(err => {
+        throw err
+      })
+  }
+
+  const logout = () => {
+    state.auth.userAuth.logout()
+    dispatch({
+      type: ACTION_TYPE.LOGOUT,
+      payload: {},
+    })
+  }
+
+  const value = {
+    state,
+    createGame,
+    joinGame,
+    playHand,
+    leftGame,
+    login,
+    register,
+    logout,
+  }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
