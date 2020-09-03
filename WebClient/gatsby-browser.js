@@ -5,3 +5,10 @@
  */
 
 // You can delete this file if you're not using it
+
+import React from "react"
+import AppContextProvider from "./src/context/context"
+
+export const wrapRootElement = ({ children }) => {
+  return <AppContextProvider>{children}</AppContextProvider>
+}

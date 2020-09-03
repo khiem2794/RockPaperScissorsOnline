@@ -7,7 +7,7 @@ namespace PlayService.Enum
 {
     public enum Hand
     {
-        Default,
+        Default = 0,
         Rock,
         Paper,
         Scissors
@@ -15,9 +15,9 @@ namespace PlayService.Enum
 
     public enum GameState
     {
-        WaitingPlayer,
+        Waiting,
         Start,
-        CompareHand,
+        Compare,
         End
     }
 

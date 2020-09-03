@@ -6,26 +6,16 @@ const CONNECTION_STATE = {
   DISCONNECTED: 2,
 }
 
-const MESSAGE_TYPE = {
-  USER_INFO: 0,
-  GAME_UPDATE: 1,
-}
-
-const Hand = {
-  ROCK: 1,
-  PAPER: 2,
-  SCISSORS: 3,
-}
-
 export class ClientHub {
   constructor() {
+    console.log("construct")
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
     this.conn = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:5001/gamehub")
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build()
-    this.handleMessage = null
+    this.messageHandler = null
     this.conn.onreconnected(() => {
       this.ConnectionState = CONNECTION_STATE.CONNECTED
     })
@@ -33,11 +23,11 @@ export class ClientHub {
       this.ConnectionState = CONNECTION_STATE.CONNECTED
     })
     this.conn.on("MessageClient", msg => {
-      if (this.handleMessage !== null) this.handleMessage(msg)
+      if (this.messageHandler !== null) this.messageHandler(msg)
     })
   }
   start() {
-    this.conn
+    return this.conn
       .start()
       .then(() => {
         this.ConnectionState = CONNECTION_STATE.CONNECTED
@@ -53,37 +43,7 @@ export class ClientHub {
         throw err
       })
   }
-}
-
-export class User {
-  constructor(clientHub) {
-    this.clientHub = clientHub
-    this.userName = ""
-    this.connectionId = ""
-    clientHub.handleMessage = msg => this.handleMessage(msg)
-    this.game = null
-  }
-  handleMessage(msg) {
-    console.log(msg)
-    const data = msg.data
-    switch (msg.messageType) {
-      case MESSAGE_TYPE.USER_INFO:
-        this.connectionId = data.connectionId
-        this.userName = data.userName
-        break
-      case MESSAGE_TYPE.GAME_UPDATE:
-        this.game = data
-        break
-      default:
-    }
-  }
-  createGame() {
-    this.clientHub.invoke("CreateGame")
-  }
-  joinGame(gameId) {
-    this.clientHub.invoke("JoinGame", gameId)
-  }
-  playHand(hand) {
-    this.clientHub.invoke("PlayHand", this.game.gameId, hand)
+  stop() {
+    return this.conn.stop()
   }
 }

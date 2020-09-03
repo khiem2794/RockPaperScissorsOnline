@@ -6,18 +6,6 @@ using System.Threading.Tasks;
 
 namespace PlayService.Models
 {
-    public class GameUpdate 
-    {
-        public string GameId { get; set; }
-        public GameState State { get; set; }
-        public struct PlayerState
-        {
-            public string Name { get; set; }
-            public int Point { get; set; }
-            public Hand Hand { get; set; }
-        };
-        public List<PlayerState> PlayersState { get; set; }
-    }
     public class Game
     {
         public static readonly int MaxPlayers = 2;
@@ -25,7 +13,9 @@ namespace PlayService.Models
         public static readonly int MaxRound = 3;
         public string GameId { get; set; }
         public GameState State { get; set; }
+        public int Round { get; set; }
         public List<Player> Players { get; set; }
+        public bool PlayerLeftGame { get; set; }
         public Game()
         {
             Players = new List<Player>();
@@ -34,31 +24,41 @@ namespace PlayService.Models
         }
         public void Initialize()
         {
-            State = GameState.WaitingPlayer;
+            PlayerLeftGame = false;
+            State = GameState.Waiting;
+            Round = 0;
         }
-        public void StartGame()
+        public void StartRound()
         {
-            State = GameState.Start;
+            if (Round > MaxRound)
+            {
+                State = GameState.End;
+            } else
+            {
+                Round++;
+                Players.ForEach(p => p.ResetHand());
+                State = GameState.Start;
+            }
         }
-        public void EndGame()
-        {
-            State = GameState.End;
-        }
+
         public void PlayHand(string connectionId, Hand hand)
         {
-            var player = GetPlayerFromConnectionId(connectionId);
-            if (player.PlayerHand == Hand.Default)
+            if (State == GameState.Start)
             {
-                player.PlayerHand = hand;
-            }
-            if (Players.FindAll(p=>p.PlayerHand != Hand.Default).Count==MaxPlayers)
-            {
-                CompareHand();
+                var player = GetPlayerFromConnectionId(connectionId);
+                if (player.PlayerHand == Hand.Default)
+                {
+                    player.PlayerHand = hand;
+                }
+                if (Players.FindAll(p => p.PlayerHand != Hand.Default).Count == MaxPlayers)
+                {
+                    CompareHand();
+                }
             }
         }
         private void CompareHand()
         {
-            State = GameState.CompareHand;
+            State = GameState.Compare;
             var player1 = Players[0];
             var player2 = Players[1];
             if (player1.PlayerHand - player2.PlayerHand == 0)
@@ -79,6 +79,8 @@ namespace PlayService.Models
             {
                 GameId = GameId,
                 State = State,
+                Round = Round,
+                PlayerLeftGame = PlayerLeftGame,
             };
             update.PlayersState = Players.Select(p =>
             {
@@ -88,7 +90,7 @@ namespace PlayService.Models
                     Name = p.User.UserName,
                     Point = p.Point,
                 }; 
-                if (State == GameState.CompareHand)
+                if (State == GameState.Compare)
                 {
                     playerState.Hand = p.PlayerHand;
                 }
@@ -99,6 +101,12 @@ namespace PlayService.Models
         private Player GetPlayerFromConnectionId(string connectionId)
         {
             return Players.SingleOrDefault(p => p.User.ConnectionId == connectionId);
+        }
+        public void LeftGame(string connectionId)
+        {
+            _ = Players.Remove(Players.Find(p => p.User.ConnectionId == connectionId));
+            State = GameState.End;
+            PlayerLeftGame = true;
         }
     }
 }
