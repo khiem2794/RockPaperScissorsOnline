@@ -8,7 +8,6 @@ const CONNECTION_STATE = {
 
 export class ClientHub {
   constructor() {
-    console.log("construct")
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
     this.conn = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:5001/gamehub")
