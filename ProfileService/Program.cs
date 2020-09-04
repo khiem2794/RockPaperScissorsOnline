@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace PlayService
+namespace ProfileService
 {
     public class Program
     {
@@ -19,12 +19,12 @@ namespace PlayService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-            .ConfigureAppConfiguration((hostContext, config) =>
-            {
-                var env = hostContext.HostingEnvironment;
-                var jwtConfigPath = Path.GetFullPath(Path.Combine(@"../JwtConfig.json"));
-                config.SetBasePath(env.ContentRootPath).AddJsonFile(jwtConfigPath, optional: false, reloadOnChange: true);
-            })
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    var env = hostContext.HostingEnvironment;
+                    var jwtConfigPath = Path.GetFullPath(Path.Combine(@"../JwtConfig.json"));
+                    config.SetBasePath(env.ContentRootPath).AddJsonFile(jwtConfigPath, optional: false, reloadOnChange: true);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

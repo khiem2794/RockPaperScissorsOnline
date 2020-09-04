@@ -10,7 +10,6 @@ export const CONNECTION_STATE = {
 export class ClientHub {
   constructor() {
     this.ConnectionState = CONNECTION_STATE.NONE
-    this.connectionId = ""
   }
   initialize(accessToken) {
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
@@ -26,7 +25,7 @@ export class ClientHub {
       this.ConnectionState = CONNECTION_STATE.CONNECTED
     })
     this.conn.onclose(() => {
-      this.ConnectionState = CONNECTION_STATE.CONNECTED
+      this.ConnectionState = CONNECTION_STATE.NONE
     })
     this.conn.on("MessageClient", msg => {
       if (this.messageHandler !== null) this.messageHandler(msg)
@@ -50,6 +49,6 @@ export class ClientHub {
       })
   }
   stop() {
-    return this.conn.stop()
+    this.conn.stop()
   }
 }

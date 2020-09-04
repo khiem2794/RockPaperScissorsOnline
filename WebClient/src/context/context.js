@@ -54,7 +54,6 @@ const reducer = (state, action) => {
         ...state,
       }
     case ACTION_TYPE.GAME_UPDATE:
-      console.log("action.payload.data", action.payload.data)
       return {
         ...state,
         game: {
@@ -95,6 +94,7 @@ export default function AppContextProvider({ children }) {
 
   const messageHandler = msg => {
     const data = msg.data
+    console.log(data)
     switch (msg.messageType) {
       case MESSAGE_TYPE.USER_INFO:
         dispatch({
@@ -118,24 +118,24 @@ export default function AppContextProvider({ children }) {
 
   useEffect(() => {
     if (
-      clientHub.ConnectionState === CONNECTION_STATE.NONE &&
-      state.auth.isAuthenticated
+      state.auth.isAuthenticated &&
+      clientHub.ConnectionState === CONNECTION_STATE.NONE
     ) {
       clientHub.initialize(state.auth.userAuth.accessToken)
     }
-    if (
-      state.auth.isAuthenticated &&
-      clientHub.ConnectionState === CONNECTION_STATE.INITIALIZE
-    ) {
-      if (clientHub === null) clientHub = new ClientHub()
-      clientHub
-        .start()
-        .then(() => {
-          clientHub.messageHandler = messageHandler
-        })
-        .catch(err => {
-          console.error(err)
-        })
+    if (state.auth.isAuthenticated) {
+      if (
+        clientHub.ConnectionState === CONNECTION_STATE.INITIALIZE ||
+        clientHub.ConnectionState === CONNECTION_STATE.DISCONNECTED
+      )
+        clientHub
+          .start()
+          .then(() => {
+            clientHub.messageHandler = messageHandler
+          })
+          .catch(err => {
+            console.error(err)
+          })
     }
     if (
       !state.auth.isAuthenticated &&
@@ -146,24 +146,40 @@ export default function AppContextProvider({ children }) {
   }, [state.auth.isAuthenticated])
 
   const createGame = () => {
-    clientHub.invoke("CreateGame")
+    try {
+      clientHub.invoke("CreateGame")
+    } catch (error) {
+      logout()
+    }
   }
 
   const joinGame = gameId => {
     // clientHub.invoke("JoinGame", gameId)
-    clientHub.invoke("JoinWaitingGame")
+    try {
+      clientHub.invoke("JoinWaitingGame")
+    } catch (error) {
+      logout()
+    }
   }
 
   const playHand = hand => {
-    clientHub.invoke("PlayHand", state.game.gameId, hand)
+    try {
+      clientHub.invoke("PlayHand", state.game.gameId, hand)
+    } catch (error) {
+      logout()
+    }
   }
 
   const leftGame = gameId => {
-    clientHub.invoke("LeftGame", state.game.gameId)
-    dispatch({
-      type: ACTION_TYPE.END_GAME,
-      payload: {},
-    })
+    try {
+      clientHub.invoke("LeftGame", state.game.gameId)
+      dispatch({
+        type: ACTION_TYPE.END_GAME,
+        payload: {},
+      })
+    } catch (error) {
+      logout()
+    }
   }
 
   const register = (name, email, password) => {

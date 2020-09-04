@@ -12,6 +12,7 @@ namespace PlayService.Models
             public string Name { get; set; }
             public int Point { get; set; }
             public Hand Hand { get; set; }
+            public bool LeftGame { get; set; }
         };
         public List<PlayerState> PlayersState { get; set; }
         public int Round { get; set; }

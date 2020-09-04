@@ -1,4 +1,5 @@
 ﻿using PlayService.Enum;
+using PlayService.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,32 +16,44 @@ namespace PlayService.Models
         public GameState State { get; set; }
         public int Round { get; set; }
         public List<Player> Players { get; set; }
-        public bool PlayerLeftGame { get; set; }
+        public int WinnerId { get; set; }
         public Game()
         {
             Players = new List<Player>();
             GameId = Guid.NewGuid().ToString();
-            
+
         }
         public void Initialize()
         {
-            PlayerLeftGame = false;
             State = GameState.Waiting;
             Round = 0;
         }
         public void StartRound()
         {
-            if (Round > MaxRound)
-            {
-                State = GameState.End;
-            } else
+            if (State != GameState.End)
             {
                 Round++;
-                Players.ForEach(p => p.ResetHand());
-                State = GameState.Start;
+                if (Round > MaxRound)
+                {
+
+                    if (Players[0].Point == Players[1].Point)
+                    {
+                        WinnerId = -1;
+                    }
+                    else
+                    {
+                        var winner = Players.First(p => p.Point == Players.Max(p => p.Point));
+                        WinnerId = winner.User.Id;
+                    }
+                    EndGame();
+                }
+                else
+                {
+                    Players.ForEach(p => p.ResetHand());
+                    State = GameState.Start;
+                }
             }
         }
-
         public void PlayHand(string connectionId, Hand hand)
         {
             if (State == GameState.Start)
@@ -50,7 +63,7 @@ namespace PlayService.Models
                 {
                     player.PlayerHand = hand;
                 }
-                if (Players.FindAll(p => p.PlayerHand != Hand.Default).Count == MaxPlayers)
+                if (Players[0].PlayerHand != Hand.Default && Players[1].PlayerHand != Hand.Default)
                 {
                     CompareHand();
                 }
@@ -65,7 +78,7 @@ namespace PlayService.Models
             {
                 player1.Point++;
                 player2.Point++;
-            } else if (player1.PlayerHand - player2.PlayerHand == 1  || player1.PlayerHand - player2.PlayerHand == -2)
+            } else if (player1.PlayerHand - player2.PlayerHand == 1 || player1.PlayerHand - player2.PlayerHand == -2)
             {
                 player1.Point++;
             } else
@@ -80,16 +93,16 @@ namespace PlayService.Models
                 GameId = GameId,
                 State = State,
                 Round = Round,
-                PlayerLeftGame = PlayerLeftGame,
             };
             update.PlayersState = Players.Select(p =>
             {
-                
+
                 var playerState = new GameUpdate.PlayerState
                 {
                     Name = p.User.UserName,
                     Point = p.Point,
-                }; 
+                    LeftGame = p.LeftGame,
+                };
                 if (State == GameState.Compare)
                 {
                     playerState.Hand = p.PlayerHand;
@@ -104,9 +117,15 @@ namespace PlayService.Models
         }
         public void LeftGame(string connectionId)
         {
-            _ = Players.Remove(Players.Find(p => p.User.ConnectionId == connectionId));
+            if (State == GameState.Waiting) return;
+            var leftPlayer = Players.Find(p => p.User.ConnectionId == connectionId);
+            leftPlayer.LeftGame = true;
+            WinnerId = Players.Find(p => p.User.ConnectionId != connectionId).User.Id;
+            EndGame();
+        }
+        private void EndGame()
+        {
             State = GameState.End;
-            PlayerLeftGame = true;
         }
     }
 }

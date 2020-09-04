@@ -161,7 +161,7 @@ export default function Index({ data }) {
                         </Grid>
                       )
                     }
-                    return <></>
+                    return <div key={k}></div>
                   })}
             </Grid>
           </Grid>
@@ -194,23 +194,38 @@ export default function Index({ data }) {
               checkResult(state.game.you.hand, state.game.opponent.hand) ===
                 RESULT.LOSE && <span>YOU LOSE ROUND {state.game.round}</span>}
 
-            {state.game.gameState === GAME_STATE.END && (
-              <span>
-                {state.game.you.point > state.game.opponent.point && (
-                  <span>YOU WIN</span>
-                )}
-                {state.game.you.point < state.game.opponent.point && (
-                  <span>YOU LOSE</span>
-                )}
-                {state.game.you.point === state.game.opponent.point && (
-                  <span>DRAW</span>
-                )}
-              </span>
-            )}
+            {state.game.gameState === GAME_STATE.END &&
+              state.game.opponent.leftGame && (
+                <span>YOU WIN (opponent left)</span>
+              )}
+
+            {state.game.gameState === GAME_STATE.END &&
+              !state.game.opponent.leftGame && (
+                <span>
+                  {state.game.you.point > state.game.opponent.point && (
+                    <span>YOU WIN</span>
+                  )}
+                  {state.game.you.point < state.game.opponent.point && (
+                    <span>YOU LOSE</span>
+                  )}
+                  {state.game.you.point === state.game.opponent.point && (
+                    <span>DRAW</span>
+                  )}
+                </span>
+              )}
           </Typography>
         </Grid>
-        <Grid item xs={2} md={4} className={classes.divide}>
+        <Grid item xs={1} md={3} className={classes.divide}>
           <Divider />
+        </Grid>
+        <Grid item xs={1} md={1} className={classes.divide}>
+          <Button
+            color="secondary"
+            variant="contained"
+            onClick={() => endGame()}
+          >
+            LEAVE
+          </Button>
         </Grid>
       </Grid>
 
@@ -251,7 +266,7 @@ export default function Index({ data }) {
                         </Grid>
                       )
                     }
-                    return <></>
+                    return <div key={k}></div>
                   })}
             </Grid>
           )}
