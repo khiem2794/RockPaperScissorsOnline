@@ -1,11 +1,11 @@
-﻿using PlayService.Enum;
-using PlayService.Services;
+﻿using Play.Enum;
+using Play.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlayService.Models
+namespace Play.Models
 {
     public class Game
     {

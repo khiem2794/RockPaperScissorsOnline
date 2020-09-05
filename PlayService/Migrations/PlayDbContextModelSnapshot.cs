@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlayService.Data;
+using Play.Data;
 
-namespace PlayService.Migrations
+namespace Play.Migrations
 {
     [DbContext(typeof(PlayDbContext))]
     partial class PlayDbContextModelSnapshot : ModelSnapshot

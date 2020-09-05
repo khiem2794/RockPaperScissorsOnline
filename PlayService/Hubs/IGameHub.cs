@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace PlayService.Hubs
+namespace Play.Hubs
 {
     public interface IGameHub
     {

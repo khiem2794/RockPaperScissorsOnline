@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using PlayService.Enum;
-using PlayService.Models;
-using PlayService.Models.PlayModel;
-using PlayService.Services;
+using Play.Enum;
+using Play.Models;
+using Play.Models.PlayModel;
+using Play.Services;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,16 +12,16 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace PlayService.Hubs
+namespace Play.Hubs
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class GameHub : Hub<IGameHub>
     {
         private static readonly ConcurrentDictionary<string, User> _users = new ConcurrentDictionary<string, User>();
         private static readonly ConcurrentDictionary<string, Game> _games = new ConcurrentDictionary<string, Game>();
-        private readonly IPlayDataService _playDataService;
+        private readonly IPlayService _playDataService;
 
-        public GameHub(IPlayDataService playDataService)
+        public GameHub(IPlayService playDataService)
         {
             this._playDataService = playDataService;
         }

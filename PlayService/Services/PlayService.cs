@@ -1,22 +1,28 @@
-﻿using PlayService.Data;
-using PlayService.Models.PlayModel;
+﻿using Play.Data;
+using Play.Models.PlayModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlayService.Services
+namespace Play.Services
 {
-    public interface IPlayDataService {
+    public interface IPlayService {
         void SaveGame(PlayData data);
+        List<PlayData> GetUserPlayData(int userId);
     }
-    public class PlayDataService : IPlayDataService
+    public class PlayService : IPlayService
     {
         private readonly PlayDbContext _playDbContext;
 
-        public PlayDataService(PlayDbContext playDbContext)
+        public PlayService(PlayDbContext playDbContext)
         {
             this._playDbContext = playDbContext;
+        }
+
+        public List<PlayData> GetUserPlayData(int userId)
+        {
+            return _playDbContext.Plays.Where(p => p.User1Id == userId || p.User2Id == userId).ToList();
         }
 
         public void SaveGame(PlayData data)

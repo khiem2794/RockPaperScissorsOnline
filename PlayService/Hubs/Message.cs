@@ -1,10 +1,10 @@
-﻿using PlayService.Enum;
+﻿using Play.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlayService.Hubs
+namespace Play.Hubs
 {
     public class Message
     {

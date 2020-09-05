@@ -13,12 +13,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using PlayService.AuthConfig;
-using PlayService.Data;
-using PlayService.Hubs;
-using PlayService.Services;
+using Play.AuthConfig;
+using Play.Data;
+using Play.Hubs;
+using Play.Services;
 
-namespace PlayService
+namespace Play
 {
     public class Startup
     {
@@ -32,8 +32,9 @@ namespace PlayService
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers();
             services.AddDbContext<PlayDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("PlayDbContext")));
-            services.AddScoped<IPlayDataService, PlayDataService>();
+            services.AddScoped<IPlayService, PlayService>();
             services.AddSignalR();
             services.AddCors(opt => opt.AddPolicy("CorsPolicy", builder =>
               {
@@ -95,10 +96,9 @@ namespace PlayService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapHub<GameHub>("/gamehub");
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
             });
         }
     }

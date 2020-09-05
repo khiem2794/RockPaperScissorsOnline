@@ -1,7 +1,7 @@
-﻿using PlayService.Enum;
+﻿using Play.Enum;
 using System.Collections.Generic;
 
-namespace PlayService.Models
+namespace Play.Models
 {
     public class GameUpdate
     {

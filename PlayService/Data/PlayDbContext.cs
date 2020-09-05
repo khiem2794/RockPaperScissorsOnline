@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlayService.Models.PlayModel;
+using Play.Models.PlayModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PlayService.Data
+namespace Play.Data
 {
     public class PlayDbContext : DbContext
     {

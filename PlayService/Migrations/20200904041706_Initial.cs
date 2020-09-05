@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PlayService.Migrations
+namespace Play.Migrations
 {
     public partial class Initial : Migration
     {

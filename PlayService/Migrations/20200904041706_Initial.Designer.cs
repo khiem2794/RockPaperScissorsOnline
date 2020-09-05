@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlayService.Data;
+using Play.Data;
 
-namespace PlayService.Migrations
+namespace Play.Migrations
 {
     [DbContext(typeof(PlayDbContext))]
     [Migration("20200904041706_Initial")]
