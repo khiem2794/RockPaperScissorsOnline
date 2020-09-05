@@ -4,6 +4,7 @@ import Layout from "../components/layout"
 import RegisterForm from "../components/register-form"
 import { AppContext } from "../context/context"
 import { navigate } from "gatsby"
+import { isBrowser } from "../helper/helper"
 
 const useStyles = makeStyles(theme => ({
   card: {
@@ -16,7 +17,7 @@ export default function Register() {
   const classes = useStyles()
   const { state, register } = useContext(AppContext)
   if (state.auth.isAuthenticated) {
-    navigate("/")
+    if (isBrowser()) navigate("/")
     return <Layout>Already LoggedIn</Layout>
   }
   return (

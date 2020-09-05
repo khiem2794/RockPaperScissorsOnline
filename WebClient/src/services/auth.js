@@ -1,8 +1,7 @@
 import axios from "axios"
 
-export const isBrowser = () => typeof window !== "undefined"
-
 const authenticationHost = "https://localhost:6001/"
+const profileHost = "https://localhost:7001/"
 
 export default class UserAuth {
   constructor(username, accessToken, refreshToken, expireAt) {
@@ -18,7 +17,7 @@ export default class UserAuth {
   }
   getProfile = () => {
     return axios
-      .get(authenticationHost + "user/profile", this.axiosConfig)
+      .get(profileHost + "profile/info", this.axiosConfig)
       .then(({ data }) => {
         return data
       })

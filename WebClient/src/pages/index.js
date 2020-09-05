@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react"
 import { graphql, navigate } from "gatsby"
 import Layout from "../components/layout"
 import { AppContext, GAME_STATE, HAND } from "../context/context"
-import { checkResult, RESULT } from "../helper/helper"
+import { checkResult, RESULT, isBrowser } from "../helper/helper"
 import {
   Grid,
   Divider,
@@ -73,7 +73,7 @@ export default function Index({ data }) {
   }
 
   if (!state.auth.isAuthenticated) {
-    navigate("/login")
+    if (isBrowser()) navigate("/login")
     return (
       <Layout>
         <div></div>

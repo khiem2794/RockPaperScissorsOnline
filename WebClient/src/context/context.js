@@ -94,7 +94,6 @@ export default function AppContextProvider({ children }) {
 
   const messageHandler = msg => {
     const data = msg.data
-    console.log(data)
     switch (msg.messageType) {
       case MESSAGE_TYPE.USER_INFO:
         dispatch({
@@ -220,6 +219,10 @@ export default function AppContextProvider({ children }) {
     })
   }
 
+  const getProfile = () => {
+    return state.auth.userAuth.getProfile()
+  }
+
   const value = {
     state,
     createGame,
@@ -229,6 +232,7 @@ export default function AppContextProvider({ children }) {
     login,
     register,
     logout,
+    getProfile,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
