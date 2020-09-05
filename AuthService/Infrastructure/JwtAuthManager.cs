@@ -11,7 +11,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace AuthService.Infrastructure
+namespace Auth.Infrastructure
 {
     public interface IJwtAuthManager
     {

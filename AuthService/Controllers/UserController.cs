@@ -5,14 +5,14 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using AuthService.Infrastructure;
-using AuthService.Services;
+using Auth.Infrastructure;
+using Auth.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthService.Controllers
+namespace Auth.Controllers
 {
     [ApiController]
     [Route("[controller]")]
@@ -106,6 +106,29 @@ namespace AuthService.Controllers
                 return Unauthorized(e.Message);
             }
         }
+
+        [Authorize]
+        [HttpPost("[action]")]
+        public IActionResult Profile()
+        {
+            var userInfo = _userService.GetUserInfo(User.Identity.Name);
+            if (userInfo != null)
+            {
+                return Ok(
+                    new UserInfoResponse
+                    {
+                        Id = userInfo.Id,
+                        Username = userInfo.UserName,
+                        Email = userInfo.Email,
+                        RegisteredAt = userInfo.RegisteredAt,
+                    }
+                );
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 
     public class RegisterRequest
@@ -131,6 +154,14 @@ namespace AuthService.Controllers
         public string Username { get; set; }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
+    }
+
+    public class UserInfoResponse
+    {
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public DateTime RegisteredAt { get; set; }
     }
 
     public class RefreshTokenRequest

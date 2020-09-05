@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AuthService.Models
+namespace Auth.Models
 {
     [Table("Users")]
     public class User

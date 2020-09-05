@@ -1,11 +1,11 @@
-﻿using AuthService.Models;
+﻿using Auth.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AuthService.Data
+namespace Auth.Data
 {
     public class AuthDbContext : DbContext
     {

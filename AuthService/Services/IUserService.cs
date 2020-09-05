@@ -1,7 +1,7 @@
-﻿using AuthService.Models;
+﻿using Auth.Models;
 using System.Threading.Tasks;
 
-namespace AuthService.Services
+namespace Auth.Services
 {
     public interface IUserService
     {

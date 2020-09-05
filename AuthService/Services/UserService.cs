@@ -1,12 +1,12 @@
-﻿using AuthService.Data;
-using AuthService.Models;
+﻿using Auth.Data;
+using Auth.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AuthService.Services
+namespace Auth.Services
 {
     public class UserService : IUserService
     {

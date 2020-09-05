@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AuthService.Infrastructure
+namespace Auth.Infrastructure
 {
     public class JwtRefreshTokenCache : IHostedService, IDisposable
     {

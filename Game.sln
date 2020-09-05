@@ -3,16 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30406.217
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayService", "PlayService\PlayService.csproj", "{F15480E0-2BF1-49B6-8C69-CCF532D04D15}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play", "PlayService\Play.csproj", "{F15480E0-2BF1-49B6-8C69-CCF532D04D15}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthService", "AuthService\AuthService.csproj", "{BF09672D-EB6C-4B30-A687-FC42E1FD5586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth", "AuthService\Auth.csproj", "{BF09672D-EB6C-4B30-A687-FC42E1FD5586}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8D2397CE-F23F-41E5-B307-42B47D4B85D8}"
 	ProjectSection(SolutionItems) = preProject
 		JwtConfig.json = JwtConfig.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProfileService", "ProfileService\ProfileService.csproj", "{A86779B4-DB93-41B4-8C0A-9EA0D278BE8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Profile", "ProfileService\Profile.csproj", "{A86779B4-DB93-41B4-8C0A-9EA0D278BE8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

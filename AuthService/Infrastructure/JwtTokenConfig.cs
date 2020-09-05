@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AuthService.Infrastructure
+namespace Auth.Infrastructure
 {
     public class JwtTokenConfig
     {
