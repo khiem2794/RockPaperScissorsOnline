@@ -1,4 +1,5 @@
 import * as signalR from "@microsoft/signalr"
+import ApiResources from "./api-resources"
 
 export const CONNECTION_STATE = {
   NONE: -1,
@@ -14,7 +15,7 @@ export class ClientHub {
   initialize(accessToken) {
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
     this.conn = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:5001/gamehub", {
+      .withUrl(ApiResources.gamehub, {
         accessTokenFactory: () => accessToken,
       })
       .withAutomaticReconnect()

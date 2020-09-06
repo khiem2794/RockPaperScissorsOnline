@@ -218,15 +218,6 @@ export default function Index({ data }) {
         <Grid item xs={1} md={3} className={classes.divide}>
           <Divider />
         </Grid>
-        <Grid item xs={1} md={1} className={classes.divide}>
-          <Button
-            color="secondary"
-            variant="contained"
-            onClick={() => endGame()}
-          >
-            LEAVE
-          </Button>
-        </Grid>
       </Grid>
 
       <div>
@@ -277,6 +268,13 @@ export default function Index({ data }) {
               score={state.game.you.point}
             />
           </Grid>
+          <Button
+            color="secondary"
+            variant="contained"
+            onClick={() => endGame()}
+          >
+            LEAVE
+          </Button>
         </Grid>
       </div>
     </Layout>

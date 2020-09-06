@@ -1,7 +1,5 @@
 import axios from "axios"
-
-const authenticationHost = "https://localhost:6001/"
-const profileHost = "https://localhost:7001/"
+import ApiResources from "./api-resources"
 
 export default class UserAuth {
   constructor(username, accessToken, refreshToken, expireAt) {
@@ -17,7 +15,7 @@ export default class UserAuth {
   }
   getProfile = () => {
     return axios
-      .get(profileHost + "profile/info", this.axiosConfig)
+      .get(ApiResources.profile, this.axiosConfig)
       .then(({ data }) => {
         return data
       })
@@ -28,7 +26,7 @@ export default class UserAuth {
   refresh = () => {
     return axios
       .post(
-        authenticationHost + "user/refresh",
+        ApiResources.refresh,
         { refreshToken: this.refreshToken },
         this.axiosConfig
       )
@@ -43,7 +41,7 @@ export default class UserAuth {
       })
   }
   logout = () => {
-    axios.post(authenticationHost + "user/logout", null, this.axiosConfig)
+    axios.post(ApiResources.logout, null, this.axiosConfig)
   }
 }
 
@@ -54,7 +52,7 @@ export const handleRegister = async (username, email, password) => {
     password: password,
   }
   return await axios
-    .post(authenticationHost + "user/register", postData)
+    .post(ApiResources.register, postData)
     .then(({ data }) => {
       const jwtToken = JSON.parse(atob(data.accessToken.split(".")[1]))
       const user = new UserAuth(
@@ -76,7 +74,7 @@ export const handleLogin = async (username, password) => {
     password: password,
   }
   return await axios
-    .post(authenticationHost + "user/login", postData)
+    .post(ApiResources.login, postData)
     .then(({ data }) => {
       const jwtToken = JSON.parse(atob(data.accessToken.split(".")[1]))
       const user = new UserAuth(
