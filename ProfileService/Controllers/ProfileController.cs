@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Profile.Models;
 using Profile.Services;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -36,7 +35,8 @@ namespace Profile.Controllers
             var userInfo = await profileService.GetUserAuthInfo(accessToken);
             var gamesInfo = await profileService.GetUserGameInfo(accessToken);
 
-            return Ok(new ProfileInfo { 
+            return Ok(new ProfileInfo
+            {
                 User = userInfo,
                 Games = gamesInfo,
             });

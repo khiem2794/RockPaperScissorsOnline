@@ -7,7 +7,6 @@ using Play.Models.PlayModel;
 using Play.Services;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -39,6 +38,10 @@ namespace Play.Hubs
             _users.TryRemove(Context.User.Identity.Name, out _);
             _games.Values.Where(g => g.Players.Count(p => p.User.UserName == Context.User.Identity.Name) > 0).ToList().ForEach(async g =>
             {
+                if (g.State == GameState.Waiting)
+                {
+                    _ = _games.TryRemove(g.GameId, out _);
+                }
                 if (g.State != GameState.End)
                 {
                     g.LeftGame(Context.ConnectionId);

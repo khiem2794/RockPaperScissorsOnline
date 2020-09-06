@@ -16,6 +16,5 @@ namespace Play.Models
         };
         public List<PlayerState> PlayersState { get; set; }
         public int Round { get; set; }
-        public bool PlayerLeftGame { get; set; }
     }
 }

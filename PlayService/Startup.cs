@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +10,9 @@ using Play.AuthConfig;
 using Play.Data;
 using Play.Hubs;
 using Play.Services;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Play
 {
@@ -36,9 +32,9 @@ namespace Play
             services.AddDbContext<PlayDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("PlayDbContext")));
             services.AddScoped<IPlayService, PlayService>();
             services.AddSignalR();
-            services.AddCors(opt => opt.AddPolicy("CorsPolicy", builder =>
+            services.AddCors(opt => opt.AddPolicy("Default", builder =>
               {
-                  builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:8000").AllowCredentials();
+                  builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:9001", "https://localhost:7001").AllowCredentials();
               }));
 
             var jwtConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
@@ -90,7 +86,7 @@ namespace Play
             }
 
             app.UseRouting();
-            app.UseCors("CorsPolicy");
+            app.UseCors("Default");
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

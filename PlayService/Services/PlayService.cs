@@ -1,13 +1,12 @@
 ﻿using Play.Data;
 using Play.Models.PlayModel;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Play.Services
 {
-    public interface IPlayService {
+    public interface IPlayService
+    {
         void SaveGame(PlayData data);
         List<PlayData> GetUserPlayData(int userId);
     }

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ApiGateway.AuthConfig;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +9,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System;
+using System.Text;
 
 namespace ApiGateway
 {
@@ -65,7 +62,7 @@ namespace ApiGateway
 
             app.UseRouting();
             app.UseCors("Default");
-            
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGet("/", async context =>

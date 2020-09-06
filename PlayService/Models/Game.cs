@@ -1,9 +1,7 @@
 ﻿using Play.Enum;
-using Play.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Play.Models
 {
@@ -78,10 +76,12 @@ namespace Play.Models
             {
                 player1.Point++;
                 player2.Point++;
-            } else if (player1.PlayerHand - player2.PlayerHand == 1 || player1.PlayerHand - player2.PlayerHand == -2)
+            }
+            else if (player1.PlayerHand - player2.PlayerHand == 1 || player1.PlayerHand - player2.PlayerHand == -2)
             {
                 player1.Point++;
-            } else
+            }
+            else
             {
                 player2.Point++;
             }

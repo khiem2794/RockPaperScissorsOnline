@@ -1,9 +1,5 @@
 ﻿using Auth.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Auth.Data
 {
@@ -13,6 +9,6 @@ namespace Auth.Data
         {
 
         }
-        public DbSet<User> Users{ get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }

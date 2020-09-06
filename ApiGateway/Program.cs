@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace ApiGateway
 {
@@ -25,7 +21,7 @@ namespace ApiGateway
                 var jwtConfigPath = Path.GetFullPath(Path.Combine(@"../JwtConfig.json"));
                 config
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile(jwtConfigPath, optional: false,reloadOnChange: true)
+                .AddJsonFile(jwtConfigPath, optional: false, reloadOnChange: true)
                 .AddJsonFile($"ocelot.{env.EnvironmentName}.json");
             })
             .ConfigureWebHostDefaults(webBuilder =>

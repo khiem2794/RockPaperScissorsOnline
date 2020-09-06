@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Profile.Models
 {
@@ -17,6 +14,6 @@ namespace Profile.Models
         [JsonPropertyName("winnerId")]
         public int WinnerId { get; set; }
         [JsonPropertyName("gameDate")]
-        public DateTime GameDate{ get; set; }
+        public DateTime GameDate { get; set; }
     }
 }

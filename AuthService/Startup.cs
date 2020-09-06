@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Auth.Data;
 using Auth.Infrastructure;
 using Auth.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
 
 namespace Auth
 {
@@ -33,7 +28,7 @@ namespace Auth
         {
             services.AddControllers();
             services.AddCors(opt =>
-                opt.AddPolicy("Default", builder => builder.WithOrigins("https://localhost:5001", "http://localhost:8000").AllowAnyMethod().AllowAnyHeader().AllowCredentials())
+                opt.AddPolicy("Default", builder => builder.WithOrigins("https://localhost:9001", "https://localhost:7001").AllowAnyMethod().AllowAnyHeader().AllowCredentials())
             );
             services.AddDbContext<AuthDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("AuthDbContext")));
             services.AddScoped<IUserService, UserService>();
