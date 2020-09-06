@@ -22,7 +22,7 @@ namespace Play.Controllers
             return Ok("Index");
         }
         [Authorize]
-        [HttpPost("profile")]
+        [HttpGet("profile")]
         public IActionResult Profile()
         {
             var userId = Int32.Parse(User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value);

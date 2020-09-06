@@ -78,6 +78,7 @@ namespace Play.Hubs
         public async Task JoinWaitingGame()
         {
             _users.TryGetValue(Context.User.Identity.Name, out var user);
+            _games.Select(v => v.Value).Where(g => g.hasPlayer(Context.ConnectionId)).ToList().ForEach(async g => await this.LeftGame(g.GameId));
             var game = _games.FirstOrDefault(g => g.Value.Players.Count < Game.MaxPlayers).Value;
             if (game != null)
             {
@@ -139,7 +140,7 @@ namespace Play.Hubs
                     GameDate = DateTime.Now,
                     WinnerId = game.WinnerId,
                 };
-                _playDataService.SaveGame(data);
+                await _playDataService.SaveGameAsync(data);
                 _ = _games.TryRemove(game.GameId, out _);
             }
         }

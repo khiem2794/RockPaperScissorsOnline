@@ -111,6 +111,10 @@ namespace Play.Models
             }).ToList();
             return update;
         }
+        public bool hasPlayer(string connectionId)
+        {
+            return Players.Select(p => p.User.ConnectionId).Contains(connectionId);
+        }
         private Player GetPlayerFromConnectionId(string connectionId)
         {
             return Players.SingleOrDefault(p => p.User.ConnectionId == connectionId);

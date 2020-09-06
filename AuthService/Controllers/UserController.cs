@@ -105,7 +105,7 @@ namespace Auth.Controllers
         }
 
         [Authorize]
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         public IActionResult Profile()
         {
             var userInfo = _userService.GetUserInfo(User.Identity.Name);

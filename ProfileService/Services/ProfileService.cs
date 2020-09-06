@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Profile.Models;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -11,14 +12,16 @@ namespace Profile.Services
     public class ProfileService : IProfileService
     {
         public HttpClient _httpClient { get; set; }
-        public ProfileService(HttpClient httpClient)
+        private readonly IConfiguration _configuration;
+        public ProfileService(HttpClient httpClient, IConfiguration configuration)
         {
+            this._configuration = configuration;
             this._httpClient = httpClient;
         }
 
         public async Task<UserInfo> GetUserAuthInfo(string accessToken)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:6001/user/profile");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, _configuration["ServicesApi:UserProfile"]);
             request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
@@ -31,7 +34,7 @@ namespace Profile.Services
 
         public async Task<List<GameInfo>> GetUserGameInfo(string accessToken)
         {
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:5001/game/profile");
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, _configuration["ServicesApi:GamesProfile"]);
             request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
             var response = await _httpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
