@@ -10,13 +10,14 @@ import {
   TableBody,
   TableCell,
   TablePagination,
+  CircularProgress,
 } from "@material-ui/core"
 
 export default function ProfileDetail({ data, isDisplayInfo }) {
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(10)
   if (data === null) {
-    return <div></div>
+    return <CircularProgress></CircularProgress>
   }
   const userInfo = data.user
   const gamesInfo = data.games
