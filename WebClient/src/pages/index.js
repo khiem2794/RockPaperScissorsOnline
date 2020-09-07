@@ -41,26 +41,47 @@ export default function Index({ data }) {
     { type: HAND.PAPER, avatar: paperAvatar },
     { type: HAND.SCISSORS, avatar: scissorsAvatar },
   ]
-  const [currentHand, setCurrentHand] = useState(HAND.DEFAULT)
-  const { state, createGame, joinGame, playHand, leftGame } = useContext(
+  const { state, createGame, joinWaitingGame, playHand, leftGame } = useContext(
     AppContext
   )
+  const [currentHand, setCurrentHand] = useState(HAND.DEFAULT)
+  const [renderState, setRenderState] = useState(state)
+  const [endGameTimeoutId, setEndGameTimeoutId] = useState(-1)
+  const [renderTimeoutId, setRenderTimeoutId] = useState(-1)
+  const [isDelayRenderState, setIsDelayRenderState] = useState(false)
 
   useEffect(() => {
-    if (state.game.gameState === GAME_STATE.START) {
+    if (state.game.gameState === GAME_STATE.COMPARE) {
+      if (!isDelayRenderState) {
+        setIsDelayRenderState(true)
+        const id = setTimeout(() => {
+          setRenderState(state)
+          setIsDelayRenderState(false)
+        }, 1500)
+        setRenderTimeoutId(id)
+      }
+    }
+    if (!isDelayRenderState) {
+      setRenderState(state)
+    }
+  }, [state, isDelayRenderState])
+
+  useEffect(() => {
+    if (renderState.game.gameState === GAME_STATE.START) {
       setCurrentHand(HAND.DEFAULT)
     }
-    if (state.game.gameState === GAME_STATE.END) {
-      setTimeout(() => endGame(), 3000)
+    if (renderState.game.gameState === GAME_STATE.END) {
+      const id = setTimeout(() => endGame(), 3000)
+      setEndGameTimeoutId(id)
     }
-  }, [state.game.gameState])
+  }, [renderState.game.gameState])
 
   const create = () => {
     createGame()
   }
 
   const join = () => {
-    joinGame("123")
+    joinWaitingGame()
   }
 
   const pickHand = hand => {
@@ -69,10 +90,13 @@ export default function Index({ data }) {
   }
 
   const endGame = () => {
-    leftGame(state.game.gameId)
+    clearTimeout(endGameTimeoutId)
+    clearTimeout(renderTimeoutId)
+    setIsDelayRenderState(false)
+    leftGame(renderState.game.gameId)
   }
 
-  if (!state.auth.isAuthenticated) {
+  if (!renderState.auth.isAuthenticated) {
     if (isBrowser()) navigate("/login")
     return (
       <Layout>
@@ -81,7 +105,7 @@ export default function Index({ data }) {
     )
   }
 
-  if (state.game.gameState === GAME_STATE.NONE) {
+  if (renderState.game.gameState === GAME_STATE.NONE) {
     return (
       <Layout>
         <Grid container justify="center" className={classes.createJoin}>
@@ -120,7 +144,7 @@ export default function Index({ data }) {
 
   return (
     <Layout>
-      {state.game.gameState === GAME_STATE.WAITING ? (
+      {renderState.game.gameState === GAME_STATE.WAITING ? (
         <div>
           <Grid container justify="center">
             <PlayerCard img={opponentAvatar} name="?" score="0" />
@@ -132,13 +156,13 @@ export default function Index({ data }) {
             <Grid item xs={12}>
               <PlayerCard
                 img={opponentAvatar}
-                name={state.game.opponent.name}
-                score={state.game.opponent.point}
+                name={renderState.game.opponent.name}
+                score={renderState.game.opponent.point}
               />
             </Grid>
             <Grid container justify="center">
               {![GAME_STATE.COMPARE, GAME_STATE.END].includes(
-                state.game.gameState
+                renderState.game.gameState
               )
                 ? handCollection.map((h, k) => (
                     <Grid item xs={4} key={k}>
@@ -150,7 +174,7 @@ export default function Index({ data }) {
                     </Grid>
                   ))
                 : handCollection.map((h, k) => {
-                    if (h.type === state.game.opponent.hand) {
+                    if (h.type === renderState.game.opponent.hand) {
                       return (
                         <Grid item xs={4} key={k}>
                           <HandCard
@@ -174,43 +198,51 @@ export default function Index({ data }) {
         </Grid>
         <Grid item xs={8} md={4} className={classes.divide}>
           <Typography gutterBottom variant="h5" component="h5">
-            {state.game.gameState === GAME_STATE.WAITING && (
+            {renderState.game.gameState === GAME_STATE.WAITING && (
               <span>WAITING FOR OPPONENT</span>
             )}
 
-            {state.game.gameState === GAME_STATE.START && (
-              <span>ROUND {state.game.round}</span>
+            {renderState.game.gameState === GAME_STATE.START && (
+              <span>ROUND {renderState.game.round}</span>
             )}
 
-            {state.game.gameState === GAME_STATE.COMPARE &&
-              checkResult(state.game.you.hand, state.game.opponent.hand) ===
-                RESULT.DRAW && <span>YOU DRAW ROUND {state.game.round}</span>}
+            {renderState.game.gameState === GAME_STATE.COMPARE && (
+              <span>
+                {checkResult(
+                  renderState.game.you.hand,
+                  renderState.game.opponent.hand
+                ) === RESULT.DRAW && (
+                  <span>YOU DRAW ROUND {renderState.game.round}</span>
+                )}
+                {checkResult(
+                  renderState.game.you.hand,
+                  renderState.game.opponent.hand
+                ) === RESULT.LOSE && (
+                  <span>YOU LOSE ROUND {renderState.game.round}</span>
+                )}
+                {checkResult(
+                  renderState.game.you.hand,
+                  renderState.game.opponent.hand
+                ) === RESULT.WIN && (
+                  <span>YOU WIN ROUND {renderState.game.round}</span>
+                )}
+              </span>
+            )}
 
-            {state.game.gameState === GAME_STATE.COMPARE &&
-              checkResult(state.game.you.hand, state.game.opponent.hand) ===
-                RESULT.WIN && <span>YOU WIN ROUND {state.game.round}</span>}
-
-            {state.game.gameState === GAME_STATE.COMPARE &&
-              checkResult(state.game.you.hand, state.game.opponent.hand) ===
-                RESULT.LOSE && <span>YOU LOSE ROUND {state.game.round}</span>}
-
-            {state.game.gameState === GAME_STATE.END &&
-              state.game.opponent.leftGame && (
+            {renderState.game.gameState === GAME_STATE.END &&
+              renderState.game.opponent.leftGame && (
                 <span>YOU WIN (opponent left)</span>
               )}
 
-            {state.game.gameState === GAME_STATE.END &&
-              !state.game.opponent.leftGame && (
+            {renderState.game.gameState === GAME_STATE.END &&
+              !renderState.game.opponent.leftGame && (
                 <span>
-                  {state.game.you.point > state.game.opponent.point && (
-                    <span>YOU WIN</span>
-                  )}
-                  {state.game.you.point < state.game.opponent.point && (
-                    <span>YOU LOSE</span>
-                  )}
-                  {state.game.you.point === state.game.opponent.point && (
-                    <span>DRAW</span>
-                  )}
+                  {renderState.game.you.point >
+                    renderState.game.opponent.point && <span>YOU WIN</span>}
+                  {renderState.game.you.point <
+                    renderState.game.opponent.point && <span>YOU LOSE</span>}
+                  {renderState.game.you.point ===
+                    renderState.game.opponent.point && <span>DRAW</span>}
                 </span>
               )}
           </Typography>
@@ -223,7 +255,7 @@ export default function Index({ data }) {
       <div>
         <Grid container justify="center">
           {![GAME_STATE.WAITING, GAME_STATE.END].includes(
-            state.game.gameState
+            renderState.game.gameState
           ) && (
             <Grid container justify="center">
               {currentHand === HAND.DEFAULT
@@ -246,10 +278,10 @@ export default function Index({ data }) {
                             isDisabled={true}
                             isSelected={true}
                             isLost={
-                              state.game.gameState === GAME_STATE.COMPARE
+                              renderState.game.gameState === GAME_STATE.COMPARE
                                 ? checkResult(
-                                    state.game.you.hand,
-                                    state.game.opponent.hand
+                                    renderState.game.you.hand,
+                                    renderState.game.opponent.hand
                                   ) === RESULT.LOSE
                                 : false
                             }
@@ -264,8 +296,8 @@ export default function Index({ data }) {
           <Grid item xs={12}>
             <PlayerCard
               img={playerAvatar}
-              name={state.game.you.name}
-              score={state.game.you.point}
+              name={renderState.game.you.name}
+              score={renderState.game.you.point}
             />
           </Grid>
           <Button
