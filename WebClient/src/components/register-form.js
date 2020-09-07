@@ -1,19 +1,26 @@
 import React, { useState } from "react"
-import { Grid, Button, TextField, Typography } from "@material-ui/core"
+import {
+  Grid,
+  Button,
+  TextField,
+  Typography,
+  Snackbar,
+} from "@material-ui/core"
 
 export default function RegisterForm({ handleRegister }) {
   const [userName, setUserName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isRegistering, setIsRegistering] = useState(false)
+  const [openSnackbar, setOpenSnackbar] = useState(false)
   const submitRegister = e => {
     e.preventDefault()
     setIsRegistering(true)
-    try {
-      handleRegister(userName, email, password)
-    } catch (error) {
+    handleRegister(userName, email, password).catch(err => {
       setIsRegistering(false)
-    }
+      setOpenSnackbar(true)
+      setTimeout(() => setOpenSnackbar(false), 1000)
+    })
   }
   return (
     <Grid item xs={12}>
@@ -78,6 +85,15 @@ export default function RegisterForm({ handleRegister }) {
           </Grid>
         </Grid>
       </form>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        open={openSnackbar}
+        autoHideDuration={1000}
+        message="Register failed! Please retry"
+      />
     </Grid>
   )
 }

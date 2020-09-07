@@ -1,20 +1,28 @@
 import React, { useState } from "react"
-import { Grid, Button, TextField, Typography } from "@material-ui/core"
+import {
+  Grid,
+  Button,
+  TextField,
+  Typography,
+  Snackbar,
+} from "@material-ui/core"
 import { Link } from "gatsby"
 
 export default function LoginForm({ handleLogin }) {
   const [userName, setUserName] = useState("")
   const [password, setPassword] = useState("")
+  const [openSnackbar, setOpenSnackbar] = useState(false)
   const [isLoggingIn, setIsLogginIn] = useState(false)
   const submitLogin = e => {
     e.preventDefault()
     setIsLogginIn(true)
-    try {
-      handleLogin(userName, password)
-    } catch (error) {
+    handleLogin(userName, password).catch(() => {
+      setOpenSnackbar(true)
+      setTimeout(() => setOpenSnackbar(false), 1000)
       setIsLogginIn(false)
-    }
+    })
   }
+
   return (
     <Grid item xs={12}>
       <form autoComplete="off" onSubmit={e => submitLogin(e)}>
@@ -76,6 +84,15 @@ export default function LoginForm({ handleLogin }) {
           </Grid>
         </Grid>
       </form>
+      <Snackbar
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        open={openSnackbar}
+        autoHideDuration={1000}
+        message="Login failed! Please retry"
+      />
     </Grid>
   )
 }
