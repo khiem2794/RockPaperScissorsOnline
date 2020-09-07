@@ -33,10 +33,11 @@ namespace Play.Hubs
             Clients.Caller.MessageClient(new Message(MessageType.UserInfo, new { User = user }));
             return base.OnConnectedAsync();
         }
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
             _users.TryRemove(Context.User.Identity.Name, out _);
-            _games.Values.Where(g => g.Players.Count(p => p.User.UserName == Context.User.Identity.Name) > 0).ToList().ForEach(async g =>
+            var currentGames = _games.Values.Where(g => g.Players.Count(p => p.User.UserName == Context.User.Identity.Name) > 0).ToList();
+            foreach (var g in currentGames)
             {
                 if (g.State == GameState.Waiting)
                 {
@@ -47,8 +48,8 @@ namespace Play.Hubs
                     g.LeftGame(Context.ConnectionId);
                     await UpdateGameToPlayers(g);
                 }
-            });
-            return base.OnDisconnectedAsync(exception);
+            }
+            await base.OnDisconnectedAsync(exception);
         }
         public async Task CreateGame()
         {
