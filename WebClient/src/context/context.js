@@ -153,7 +153,14 @@ export default function AppContextProvider({ children }) {
   }
 
   const joinGame = gameId => {
-    // clientHub.invoke("JoinGame", gameId)
+    try {
+      clientHub.invoke("JoinGame")
+    } catch (error) {
+      logout()
+    }
+  }
+
+  const joinWaitingGame = () => {
     try {
       clientHub.invoke("JoinWaitingGame")
     } catch (error) {
@@ -212,6 +219,7 @@ export default function AppContextProvider({ children }) {
   }
 
   const logout = () => {
+    if (state.game.gameId !== "") leftGame(state.game.gameId)
     state.auth.userAuth.logout()
     dispatch({
       type: ACTION_TYPE.LOGOUT,
@@ -233,6 +241,7 @@ export default function AppContextProvider({ children }) {
     register,
     logout,
     getProfile,
+    joinWaitingGame,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
