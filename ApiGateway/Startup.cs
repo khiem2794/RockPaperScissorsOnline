@@ -29,7 +29,7 @@ namespace ApiGateway
         {
             services.AddOcelot();
             services.AddCors(opt => opt.AddPolicy("Default", builder => builder.WithOrigins("http://localhost:8000").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));
-            var jwtConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
+            var jwtConfig = Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>();
             services.AddSingleton(jwtConfig);
             services.AddAuthentication(opt =>
             {

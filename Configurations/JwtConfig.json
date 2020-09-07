@@ -1,5 +1,5 @@
 ﻿{
-    "jwtTokenConfig": {
+    "JwtTokenConfig": {
         "secret": "Z0OXnQTxHmxtYHCF",
         "issuer": "https://rock-paper-scissors.com",
         "audience": "https://rock-paper-scissors.com",

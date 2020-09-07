@@ -31,7 +31,7 @@ namespace Profile
             }));
             services.AddHttpClient<IProfileService, ProfileService>();
 
-            var jwtConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
+            var jwtConfig = Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>();
             services.AddSingleton(jwtConfig);
             services.AddAuthentication(opt =>
             {

@@ -17,7 +17,7 @@ namespace Auth
             .ConfigureAppConfiguration((hostContext, config) =>
             {
                 var env = hostContext.HostingEnvironment;
-                var jwtConfigPath = Path.GetFullPath(Path.Combine(@"../JwtConfig.json"));
+                var jwtConfigPath = Path.GetFullPath(Path.Combine(@"../../Configurations/JwtConfig.json"));
                 config.SetBasePath(env.ContentRootPath).AddJsonFile(jwtConfigPath);
             })
             .ConfigureWebHostDefaults(webBuilder =>

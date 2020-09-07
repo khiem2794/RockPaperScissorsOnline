@@ -37,7 +37,7 @@ namespace Play
                   builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:9001", "https://localhost:7001").AllowCredentials();
               }));
 
-            var jwtConfig = Configuration.GetSection("jwtTokenConfig").Get<JwtTokenConfig>();
+            var jwtConfig = Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>();
             services.AddSingleton(jwtConfig);
             services.AddAuthentication(opt =>
             {
