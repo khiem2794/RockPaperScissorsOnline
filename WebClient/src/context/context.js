@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react"
+import React, { createContext, useReducer, useEffect, useState } from "react"
 import { ClientHub, CONNECTION_STATE } from "../services/hub"
 import { handleLogin, handleRegister } from "../services/auth"
 
@@ -91,6 +91,7 @@ const clientHub = new ClientHub()
 
 export default function AppContextProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [refreshIntervalId, setRefreshIntervalId] = useState(-1)
 
   const messageHandler = msg => {
     const data = msg.data
@@ -120,7 +121,7 @@ export default function AppContextProvider({ children }) {
       state.auth.isAuthenticated &&
       clientHub.ConnectionState === CONNECTION_STATE.NONE
     ) {
-      clientHub.initialize(state.auth.userAuth.accessToken)
+      clientHub.initialize(state.auth.userAuth)
     }
     if (state.auth.isAuthenticated) {
       if (
@@ -206,6 +207,12 @@ export default function AppContextProvider({ children }) {
   const login = (name, password) => {
     return handleLogin(name, password)
       .then(userAuth => {
+        const offset = 30 * 1000
+        const id = setInterval(
+          () => userAuth.refresh(),
+          userAuth.expireAt - Date.now() - offset
+        )
+        setRefreshIntervalId(id)
         dispatch({
           type: ACTION_TYPE.LOGIN,
           payload: {
@@ -219,6 +226,7 @@ export default function AppContextProvider({ children }) {
   }
 
   const logout = () => {
+    clearInterval(refreshIntervalId)
     if (state.game.gameId !== "") leftGame(state.game.gameId)
     state.auth.userAuth.logout()
     dispatch({

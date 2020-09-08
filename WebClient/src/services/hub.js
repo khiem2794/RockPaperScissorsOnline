@@ -12,16 +12,16 @@ export class ClientHub {
   constructor() {
     this.ConnectionState = CONNECTION_STATE.NONE
   }
-  initialize(accessToken) {
+  initialize(userAuth) {
     this.ConnectionState = CONNECTION_STATE.INITIALIZE
     this.conn = new signalR.HubConnectionBuilder()
       .withUrl(ApiResources.gamehub, {
-        accessTokenFactory: () => accessToken,
+        accessTokenFactory: () => userAuth.accessToken,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build()
-    this.messageHandler = null
+    this.conn.messageHandler = null
     this.conn.onreconnected(() => {
       this.ConnectionState = CONNECTION_STATE.CONNECTED
     })
