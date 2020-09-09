@@ -2,10 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Play.Models
 {
-    public class Game
+    public interface IGame
+    {
+        public string GameId { get; }
+        public List<Player> Players { get;}
+        public GameState State { get; }
+        public int WinnerId { get; }
+        bool AddPlayer(Player player);
+        bool LeftGame(string connectionId);
+        void PlayHand(string connectionId, Hand hand);
+        bool HasPlayer(string connectionId);
+        GameUpdate UpdateGame();
+        void StartRound();
+    }
+    public class Game : IGame
     {
         public static readonly int MaxPlayers = 2;
         public static readonly int MaxPoint = 3;
@@ -19,13 +33,10 @@ namespace Play.Models
         {
             Players = new List<Player>();
             GameId = Guid.NewGuid().ToString();
-
-        }
-        public void Initialize()
-        {
             State = GameState.Waiting;
             Round = 0;
         }
+
         public void StartRound()
         {
             if (State != GameState.End)
@@ -111,7 +122,7 @@ namespace Play.Models
             }).ToList();
             return update;
         }
-        public bool hasPlayer(string connectionId)
+        public bool HasPlayer(string connectionId)
         {
             return Players.Select(p => p.User.ConnectionId).Contains(connectionId);
         }
@@ -119,17 +130,29 @@ namespace Play.Models
         {
             return Players.SingleOrDefault(p => p.User.ConnectionId == connectionId);
         }
-        public void LeftGame(string connectionId)
+        public bool LeftGame(string connectionId)
         {
-            if (State == GameState.Waiting) return;
+            if (State == GameState.Waiting || State == GameState.End) return false;
             var leftPlayer = Players.Find(p => p.User.ConnectionId == connectionId);
             leftPlayer.LeftGame = true;
             WinnerId = Players.Find(p => p.User.ConnectionId != connectionId).User.Id;
             EndGame();
+            return true;
         }
         private void EndGame()
         {
             State = GameState.End;
+        }
+
+        public bool AddPlayer(Player player)
+        {
+            if (!this.Players.Contains(player) && this.Players.Count < Game.MaxPlayers && this.State == GameState.Waiting)
+            {
+                this.Players.Add(player);
+                if (this.Players.Count == Game.MaxPlayers) StartRound();
+                return true;
+            }
+            return false;
         }
     }
 }
