@@ -2,13 +2,10 @@
 
 namespace Play.Models
 {
-    interface IPlayer
-    {
-    }
-    public class Player : IPlayer
+    public class Player
     {
         public int Point { get; set; }
-        public User User { get; set; }
+        public User User { get; }
         public Hand PlayerHand { get; set; }
         public bool LeftGame { get; set; }
         public Player(User user)
