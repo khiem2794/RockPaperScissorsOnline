@@ -31,7 +31,8 @@ namespace Play.Hubs
             {
                 Context.Abort();
                 return Task.CompletedTask;
-            } else
+            }
+            else
             {
                 var user = new User(Context.ConnectionId, Int32.Parse(Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value), Context.User.Identity.Name);
                 _ = _users.TryAdd(user.UserName, user);
@@ -41,21 +42,31 @@ namespace Play.Hubs
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            _users.TryRemove(Context.User.Identity.Name, out _);
-            var currentGames = _games.Values.Where(g => g.Players.Count(p => p.User.UserName == Context.User.Identity.Name) > 0).ToList();
-            foreach (var g in currentGames)
+            if (_users.TryGetValue(Context.User.Identity.Name, out var user))
             {
-                if (g.State == GameState.Waiting)
+                if (user.ConnectionId != Context.ConnectionId)
                 {
-                    _ = _games.TryRemove(g.GameId, out _);
+                    Context.Abort();
                 }
-                if (g.State != GameState.End)
+                else
                 {
-                    g.LeftGame(Context.ConnectionId);
-                    await UpdateGameToPlayers(g);
+                    _users.TryRemove(Context.User.Identity.Name, out _);
+                    var currentGames = _games.Values.Where(g => g.Players.Count(p => p.User.UserName == Context.User.Identity.Name) > 0).ToList();
+                    foreach (var g in currentGames)
+                    {
+                        if (g.State == GameState.Waiting)
+                        {
+                            _ = _games.TryRemove(g.GameId, out _);
+                        }
+                        if (g.State != GameState.End)
+                        {
+                            g.LeftGame(Context.ConnectionId);
+                            await UpdateGameToPlayers(g);
+                        }
+                    }
+                    await base.OnDisconnectedAsync(exception);
                 }
             }
-            await base.OnDisconnectedAsync(exception);
         }
         public async Task CreateGame()
         {
@@ -82,7 +93,8 @@ namespace Play.Hubs
         {
             _users.TryGetValue(Context.User.Identity.Name, out var user);
             var currentGames = _games.Select(v => v.Value).Where(g => g.HasPlayer(Context.ConnectionId)).ToList();
-            foreach (var g in currentGames) {
+            foreach (var g in currentGames)
+            {
                 if (g.State == GameState.Waiting)
                 {
                     _ = _games.TryRemove(g.GameId, out _);
