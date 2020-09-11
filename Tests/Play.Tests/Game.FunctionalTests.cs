@@ -1,16 +1,15 @@
 using Play.Enum;
 using Play.Models;
-using System;
 using Xunit;
 
-namespace XUnitTestProject1
+namespace Play.FunctionalTests
 {
-    public class GameTest
+    public class GameTests
     {
         private readonly IGame game;
         private readonly Player PlayerA;
         private readonly Player PlayerB;
-        public GameTest()
+        public GameTests()
         {
             game = new Game();
             PlayerA = new Player(new User("conn1", 1, "A"));
@@ -83,7 +82,7 @@ namespace XUnitTestProject1
             game.PlayHand(PlayerA.User.ConnectionId, handA);
             game.PlayHand(PlayerB.User.ConnectionId, handB);
             Assert.Equal(GameState.Compare, game.State);
-            Assert.Equal(pointA+1, PlayerA.Point);
+            Assert.Equal(pointA + 1, PlayerA.Point);
         }
         [Theory]
         [InlineData(Hand.Rock, Hand.Rock)]
@@ -121,7 +120,6 @@ namespace XUnitTestProject1
             }
             Assert.Equal(GameState.End, game.State);
             Assert.Equal(PlayerA.User.Id, game.WinnerId);
-            Assert.Equal(Game.MaxPoint, PlayerA.Point);
         }
         [Fact]
         public void PlayerA_Should_Win_If_PlayerB_Left()

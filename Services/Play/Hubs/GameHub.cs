@@ -156,8 +156,7 @@ namespace Play.Hubs
         private async Task StartRound(IGame game)
         {
             game.StartRound();
-            var clients = Clients.Clients(game.Players.Where(p => !p.LeftGame).Select(player => player.User.ConnectionId).ToList());
-            await clients.MessageClient(new Message(MessageType.GameUpdate, game.UpdateGame()));
+            await UpdateGameToPlayers(game);
         }
 
         private async Task SaveGameData(IGame game)
