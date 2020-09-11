@@ -25,7 +25,7 @@
 
     public enum MessageType
     {
-        UserInfo,
+        ConnectionEstablished,
         GameUpdate
     }
 }

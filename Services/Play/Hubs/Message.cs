@@ -1,12 +1,13 @@
 ﻿using Play.Enum;
+using Play.Models;
 
 namespace Play.Hubs
 {
     public class Message
     {
         public MessageType MessageType { get; set; }
-        public object Data { get; set; }
-        public Message(MessageType type, object data)
+        public GameUpdate Data { get; set; }
+        public Message(MessageType type, GameUpdate data)
         {
             MessageType = type;
             Data = data;

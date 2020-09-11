@@ -3,9 +3,8 @@ import { ClientHub, CONNECTION_STATE } from "../services/hub"
 import { handleLogin, handleRegister } from "../services/auth"
 
 const MESSAGE_TYPE = {
-  USER_INFO: 0,
+  CONNECTION_ESTABLISHED: 0,
   GAME_UPDATE: 1,
-  END_GAME: 2,
 }
 
 const ACTION_TYPE = {
@@ -49,7 +48,7 @@ export const AppContext = createContext(initialState)
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case ACTION_TYPE.USER_INFO:
+    case ACTION_TYPE.ConnectionEstablished:
       return {
         ...state,
       }

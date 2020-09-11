@@ -36,7 +36,7 @@ namespace Play.Hubs
             {
                 var user = new User(Context.ConnectionId, Int32.Parse(Context.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value), Context.User.Identity.Name);
                 _ = _users.TryAdd(user.UserName, user);
-                Clients.Caller.MessageClient(new Message(MessageType.UserInfo, new { User = user }));
+                Clients.Caller.MessageClient(new Message(MessageType.ConnectionEstablished, null));
                 return base.OnConnectedAsync();
             }
         }
@@ -105,7 +105,7 @@ namespace Play.Hubs
                     await UpdateGameToPlayers(g);
                 }
             }
-            var game = _games.FirstOrDefault(g => g.Value.Players.Count < Game.MaxPlayers).Value;
+            var game = _games.FirstOrDefault(g => g.Value.State == GameState.Waiting).Value;
             if (game != null)
             {
                 var player = new Player(user);
@@ -119,7 +119,7 @@ namespace Play.Hubs
         public async Task PlayHand(string gameId, Hand hand)
         {
             var exist = _games.TryGetValue(gameId, out var game);
-            if (exist)
+            if (exist && game.State == GameState.Start)
             {
                 game.PlayHand(Context.ConnectionId, hand);
                 await UpdateGameToPlayers(game);

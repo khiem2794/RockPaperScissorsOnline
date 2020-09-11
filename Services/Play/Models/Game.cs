@@ -2,14 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Play.Models
 {
     public interface IGame
     {
         public string GameId { get; }
-        public List<Player> Players { get;}
+        public List<Player> Players { get; }
         public GameState State { get; }
         public int WinnerId { get; }
         bool AddPlayer(Player player);
@@ -22,7 +21,6 @@ namespace Play.Models
     public class Game : IGame
     {
         public static readonly int MaxPlayers = 2;
-        public static readonly int MaxPoint = 3;
         public static readonly int MaxRound = 3;
         public string GameId { get; set; }
         public GameState State { get; set; }
