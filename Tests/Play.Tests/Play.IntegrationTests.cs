@@ -1,18 +1,15 @@
-﻿
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Moq;
 using Newtonsoft.Json;
 using Play.AuthConfig;
 using Play.Enum;
 using Play.Hubs;
 using Play.Models.PlayModel;
 using Play.Services;
+using Play.Tests;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -38,7 +35,7 @@ namespace Play.FunctionalTests
     }
     public class HubIntegrationTests : IDisposable
     {
-        private readonly static JwtTokenConfig jwtSampleConfig = new JwtTokenConfig { Audience = "http://sample.com", Issuer = "http://sample.com", Secret = "Z0123QTx123tYHCF" };
+        public readonly static JwtTokenConfig jwtSampleConfig = new JwtTokenConfig { Audience = "https://sample.com", Issuer = "https://sample.com", Secret = "Z0O1234561234567" };
         private readonly TestServer server;
         private HubConnection playerA;
         private HubConnection playerB;
@@ -46,43 +43,12 @@ namespace Play.FunctionalTests
         private List<Message> playerBreceivedMsg = new List<Message>();
         public HubIntegrationTests()
         {
-            var mockPlay = new Mock<IPlayService>();
-            var webHostBuilder = new WebHostBuilder().ConfigureServices(services =>
-            {
-                services.AddSignalR();
-                services.AddScoped<IPlayService, FakePlayService>();
-
-                services.AddSingleton(jwtSampleConfig);
-                services.AddAuthentication(opt =>
+            var webHostBuilder = new WebHostBuilder()
+                .UseStartup<PlayTestsStartup>()
+                .ConfigureTestServices(services =>
                 {
-                    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                }).AddJwtBearer(opt =>
-                {
-                    opt.SaveToken = true;
-                    opt.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = jwtSampleConfig.Issuer,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSampleConfig.Secret)),
-                        ValidAudience = jwtSampleConfig.Audience,
-                        ValidateAudience = true,
-                        ValidateLifetime = false,
-                    };
+                    services.AddScoped<IPlayService, FakePlayService>();
                 });
-            })
-            .Configure(app =>
-            {
-                app.UseRouting();
-                app.UseAuthentication();
-                app.UseAuthorization();
-                app.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapHub<GameHub>("/gamehub");
-                });
-            });
-
 
             server = new TestServer(webHostBuilder);
             playerA = CreateClient(1, "playerA");
@@ -106,6 +72,7 @@ namespace Play.FunctionalTests
                 jwtSampleConfig.Issuer,
                 jwtSampleConfig.Audience,
                 claims,
+                expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSampleConfig.Secret)), SecurityAlgorithms.HmacSha256Signature));
             var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
 
