@@ -29,15 +29,39 @@ namespace Play
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddCors(opt => opt.AddPolicy("Default", builder =>
+            {
+                builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:9001", "https://localhost:7001").AllowCredentials();
+            }));
+            services.AddSignalR();
             services.AddDbContext<PlayDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("PlayDbContext")));
             services.AddScoped<IPlayService, PlayService>();
-            services.AddSignalR();
-            services.AddCors(opt => opt.AddPolicy("Default", builder =>
-              {
-                  builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:9001", "https://localhost:7001").AllowCredentials();
-              }));
-
             var jwtConfig = Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>();
+            ConfigureAuthService(services, jwtConfig);
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseRouting();
+            app.UseCors("Default");
+            ConfigureAuth(app);
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHub<GameHub>("/gamehub");
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller}/{action=Index}/{id?}");
+            });
+        }
+
+        public virtual void ConfigureAuthService(IServiceCollection services, JwtTokenConfig jwtConfig)
+        {
             services.AddSingleton(jwtConfig);
             services.AddAuthentication(opt =>
             {
@@ -77,25 +101,10 @@ namespace Play
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void ConfigureAuth(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseRouting();
-            app.UseCors("Default");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapHub<GameHub>("/gamehub");
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller}/{action=Index}/{id?}");
-            });
         }
     }
 }

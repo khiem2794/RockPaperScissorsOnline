@@ -30,8 +30,31 @@ namespace Profile
                 builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:9001").AllowCredentials();
             }));
             services.AddHttpClient<IProfileService, ProfileService>();
-
             var jwtConfig = Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>();
+            ConfigureAuthService(services, jwtConfig);
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+            app.UseCors("Default");
+            ConfigureAuth(app);
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+        }
+
+        public virtual void ConfigureAuthService(IServiceCollection services, JwtTokenConfig jwtConfig)
+        {
             services.AddSingleton(jwtConfig);
             services.AddAuthentication(opt =>
             {
@@ -54,25 +77,10 @@ namespace Profile
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public virtual void ConfigureAuth(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
-            app.UseCors("Default");
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
         }
     }
 }
