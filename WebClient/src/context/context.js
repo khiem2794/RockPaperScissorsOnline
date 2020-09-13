@@ -14,6 +14,7 @@ const ACTION_TYPE = {
 
   REGISTER: 3,
   LOGIN: 4,
+  LOGOUT: 5,
 }
 
 export const GAME_STATE = {
