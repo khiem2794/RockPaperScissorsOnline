@@ -1,6 +1,7 @@
-const gateway = "https://localhost:9001/"
+const gateway = "https://localhost:3001/"
 
 const ApiResources = {
+  getJwt: gateway + "user/jwt",
   register: gateway + "user/register",
   login: gateway + "user/login",
   logout: gateway + "user/logout",

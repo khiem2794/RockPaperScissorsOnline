@@ -2,6 +2,7 @@
 using Auth.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -15,6 +16,7 @@ namespace Auth.Controllers
     [Route("[controller]")]
     public class UserController : Controller
     {
+        private const string TokenKey = "token";
         private readonly IUserService _userService;
         private readonly IJwtAuthManager _jwtAuthManager;
 
@@ -28,6 +30,36 @@ namespace Auth.Controllers
         public IActionResult Index()
         {
             return Ok("Index");
+        }
+
+        [HttpGet("jwt")]
+        public IActionResult Jwt()
+        {
+            var token = Request.Cookies[TokenKey];
+            if (!String.IsNullOrWhiteSpace(token))
+            {
+                try
+                {
+                    var (principal, accessToken) = _jwtAuthManager.DecodeJwtToken(token);
+                    if (accessToken != null)
+                    {
+                        string refreshToken = _jwtAuthManager.GetRefreshTokenWithUserName(principal.Identity.Name);
+                        if (!String.IsNullOrEmpty(refreshToken))
+                        {
+                            LoginResponse loginResponse = new LoginResponse
+                            {
+                                AccessToken = token,
+                                RefreshToken = refreshToken,
+                                Username = principal.Identity.Name
+                            };
+                            return Ok(loginResponse);
+                        }
+                    }
+                }
+                catch { }
+            }
+            ClearTokenCookie();
+            return Unauthorized();
         }
 
         [HttpPost("register")]
@@ -48,6 +80,7 @@ namespace Auth.Controllers
                 AccessToken = jwtResult.AccessToken,
                 RefreshToken = jwtResult.RefreshToken.TokenString,
             };
+            SetTokenCookie(jwtResult.AccessToken);
             return Ok(loginResult);
         }
 
@@ -70,6 +103,7 @@ namespace Auth.Controllers
                 AccessToken = jwtResult.AccessToken,
                 RefreshToken = jwtResult.RefreshToken.TokenString,
             };
+            SetTokenCookie(jwtResult.AccessToken);
             return Ok(loginResult);
         }
 
@@ -78,6 +112,7 @@ namespace Auth.Controllers
         public IActionResult Logout()
         {
             _jwtAuthManager.RemoveRefreshTokenByUserName(User.Identity.Name);
+            ClearTokenCookie();
             return Ok();
         }
 
@@ -125,6 +160,23 @@ namespace Auth.Controllers
             {
                 return NotFound();
             }
+        }
+
+        private void SetTokenCookie(string token)
+        {
+            CookieOptions cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                MaxAge = TimeSpan.FromMinutes(10),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SameSite = SameSiteMode.Lax
+            };
+            Response.Cookies.Append(TokenKey, token, cookieOptions);
+        }
+
+        private void ClearTokenCookie()
+        {
+            Response.Cookies.Delete(TokenKey);
         }
     }
 

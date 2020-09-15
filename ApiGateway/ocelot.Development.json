@@ -1,6 +1,18 @@
 ﻿{
     "Routes": [
         {
+            "DownstreamPathTemplate": "/user/jwt",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndports": [
+                {
+                    "Host": "localhost",
+                    "Port": 6001
+                }
+            ],
+            "UpstreamPathTemplate": "/user/jwt",
+            "UpstreamHttpMethod": [ "Get" ]
+        },
+        {
             "DownstreamPathTemplate": "/user/login",
             "DownstreamScheme": "https",
             "DownstreamHostAndports": [

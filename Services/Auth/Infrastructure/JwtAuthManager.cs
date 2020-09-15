@@ -19,6 +19,7 @@ namespace Auth.Infrastructure
         void RemoveExpiredRefreshTokens(DateTime now);
         void RemoveRefreshTokenByUserName(string userName);
         (ClaimsPrincipal, JwtSecurityToken) DecodeJwtToken(string token);
+        string GetRefreshTokenWithUserName(string userName);
     }
 
     public class JwtAuthResult
@@ -95,37 +96,51 @@ namespace Auth.Infrastructure
             {
                 throw new SecurityTokenException("Invalid Token");
             }
-            var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+            try
             {
-                ValidateIssuer = true,
-                ValidIssuer = _jwtTokenConfig.Issuer,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_secret),
-                ValidAudience = _jwtTokenConfig.Audience,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(1)
-            }, out var validatedToken);
-            return (principal, validatedToken as JwtSecurityToken);
+                var principal = new JwtSecurityTokenHandler().ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtTokenConfig.Issuer,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(_secret),
+                    ValidAudience = _jwtTokenConfig.Audience,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(1)
+                }, out var validatedToken);
+                return (principal, validatedToken as JwtSecurityToken);
+            }
+            catch (Exception)
+            {
+                throw new SecurityTokenException("Invalid Token");
+            }
         }
 
         public JwtAuthResult Refresh(string refreshToken, string accessToken, DateTime now)
         {
-            var (principal, jwtToken) = DecodeJwtToken(accessToken);
-            if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature))
+            try
             {
-                throw new SecurityTokenException("Invalid Token");
+                var (principal, jwtToken) = DecodeJwtToken(accessToken);
+                if (jwtToken == null || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature))
+                {
+                    throw new SecurityTokenException("Invalid Token");
+                }
+                var username = principal.Identity.Name;
+                if (!_userRefreshTokens.TryGetValue(refreshToken, out var existingRefreshToken))
+                {
+                    throw new SecurityTokenException("Invalid Token");
+                }
+                if (existingRefreshToken.UserName != username || existingRefreshToken.ExpireAt < now)
+                {
+                    throw new SecurityTokenException("Invalid Token");
+                }
+                return GenerateTokens(username, principal.Claims.ToArray(), now);
             }
-            var username = principal.Identity.Name;
-            if (!_userRefreshTokens.TryGetValue(refreshToken, out var existingRefreshToken))
+            catch (SecurityTokenException e)
             {
-                throw new SecurityTokenException("Invalid Token");
+                throw e;
             }
-            if (existingRefreshToken.UserName != username || existingRefreshToken.ExpireAt < now)
-            {
-                throw new SecurityTokenException("Invalid Token");
-            }
-            return GenerateTokens(username, principal.Claims.ToArray(), now);
         }
 
         public void RemoveExpiredRefreshTokens(DateTime now)
@@ -144,6 +159,16 @@ namespace Auth.Infrastructure
             {
                 _userRefreshTokens.TryRemove(item.Key, out _);
             }
+        }
+
+        public string GetRefreshTokenWithUserName(string userName)
+        {
+            var tokens = UsersRefreshTokensReadOnlyDictionary.Where(x => x.Value.UserName == userName).FirstOrDefault();
+            if (tokens.Value != null)
+            {
+                return tokens.Value.TokenString;
+            }
+            return String.Empty;
         }
     }
 }

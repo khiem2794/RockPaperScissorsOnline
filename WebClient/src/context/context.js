@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useEffect, useState } from "react"
 import { ClientHub, CONNECTION_STATE } from "../services/hub"
-import { handleLogin, handleRegister } from "../services/auth"
+import { handleLogin, handleRegister, handleLoad } from "../services/auth"
 
 const MESSAGE_TYPE = {
   CONNECTION_ESTABLISHED: 0,
@@ -115,6 +115,12 @@ export default function AppContextProvider({ children }) {
       default:
     }
   }
+
+  useEffect(() => {
+    if (!state.auth.isAuthenticated) {
+      load()
+    }
+  }, [])
 
   useEffect(() => {
     if (
@@ -237,6 +243,27 @@ export default function AppContextProvider({ children }) {
 
   const getProfile = () => {
     return state.auth.userAuth.getProfile()
+  }
+
+  const load = () => {
+    return handleLoad()
+      .then(userAuth => {
+        const offset = 30 * 1000
+        const id = setInterval(
+          () => userAuth.refresh(),
+          userAuth.expireAt - Date.now() - offset
+        )
+        setRefreshIntervalId(id)
+        dispatch({
+          type: ACTION_TYPE.LOGIN,
+          payload: {
+            data: userAuth,
+          },
+        })
+      })
+      .catch(err => {
+        throw err
+      })
   }
 
   const value = {

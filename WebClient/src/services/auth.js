@@ -1,6 +1,8 @@
 import axios from "axios"
 import ApiResources from "./api-resources"
 
+axios.defaults.withCredentials = true
+
 export default class UserAuth {
   constructor(username, accessToken, refreshToken, expireAt) {
     this.username = username
@@ -90,6 +92,20 @@ export const handleLogin = async (username, password) => {
     })
 }
 
-export const handleLoad = () => {
-  return null
+export const handleLoad = async () => {
+  return axios
+    .get(ApiResources.getJwt)
+    .then(({ data }) => {
+      const jwtToken = JSON.parse(atob(data.accessToken.split(".")[1]))
+      const user = new UserAuth(
+        data.username,
+        data.accessToken,
+        data.refreshToken,
+        new Date(jwtToken.exp * 1000).getTime()
+      )
+      return user
+    })
+    .catch(err => {
+      throw err
+    })
 }
