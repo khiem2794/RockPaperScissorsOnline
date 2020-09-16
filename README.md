@@ -32,3 +32,14 @@ Written use GatsbyJS, using material-ui for styling, support responsive display.
 ## Game demo
 
 ![Demo](Demo.gif)
+
+## How to run
+
+- ### Start the client
+
+  ```bash
+  cd webclient
+  npm run develop
+  ```
+
+- ### Start the services : configure the solution to multiple statup projects
