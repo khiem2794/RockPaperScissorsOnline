@@ -56,9 +56,11 @@ namespace Auth.Controllers
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                    ClearTokenCookie();
+                }
             }
-            ClearTokenCookie();
             return Unauthorized();
         }
 
