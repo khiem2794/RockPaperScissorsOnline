@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Profile", "Services\Profile
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGateway", "ApiGateway\ApiGateway.csproj", "{818D85F4-DF6E-4E73-82FB-A897DC9664F7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{216EB58A-2B31-44A0-AF17-29A517978479}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{216EB58A-2B31-44A0-AF17-29A517978479}"
 	ProjectSection(SolutionItems) = preProject
 		Configurations\JwtConfig.json = Configurations\JwtConfig.json
 	EndProjectSection
@@ -19,6 +19,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Play.Tests", "Tests\Play.Tests\Play.Tests.csproj", "{9F576A1B-DFE8-4405-9C3C-9C8DC6257F06}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Profile.Tests", "Tests\Profile.Tests\Profile.Tests.csproj", "{F46FE465-C081-475A-A8D2-52313ED5C9E4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{05A44C21-6511-48F9-9375-F566AC8F3075}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7D718059-E001-4B27-841D-EFE9693F7A2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -105,6 +109,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F15480E0-2BF1-49B6-8C69-CCF532D04D15} = {05A44C21-6511-48F9-9375-F566AC8F3075}
+		{BF09672D-EB6C-4B30-A687-FC42E1FD5586} = {05A44C21-6511-48F9-9375-F566AC8F3075}
+		{A86779B4-DB93-41B4-8C0A-9EA0D278BE8F} = {05A44C21-6511-48F9-9375-F566AC8F3075}
+		{9F576A1B-DFE8-4405-9C3C-9C8DC6257F06} = {7D718059-E001-4B27-841D-EFE9693F7A2C}
+		{F46FE465-C081-475A-A8D2-52313ED5C9E4} = {7D718059-E001-4B27-841D-EFE9693F7A2C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {63691B3C-D71F-47F4-9665-CE0AA82D676C}
